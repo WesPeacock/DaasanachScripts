@@ -14,13 +14,14 @@ This script reads an ini file for:
 It opl's the SFM file.
 It grinds over the opl'ed file building a hash of entry/homograph#
 It grinds again finding duplicate complex forms. If the duplicated form is in the hash, ignore it.
-create a dummy entry with a pointer
+Otherwise, create a dummy entry with a pointer to the main entry it occurs in.
+Add the dummy entry to the hash.
 
 The ini file should have sections with syntax like this:
 [MakeCompForm]
 CompFormSFMs=Form1,Form2...
 e.g.
-CompFormSFMs=CN,CNs,CNp,Cp,coCp,CpP,P1,coP1,P1s,P1p,P2,coP2,P2s,P2p,PN,vaPN,PN1,PN2,PNs,PNp,I1,coI1,vaI1,phI1,I1s,I1p,I2,va12,I2s,I2p,IN,coIN,INs,INp,IN1,vaIN1,IN2,vaIN2,J1,coJ1,JN,vaJN,vaJN1,J2,vaJN2,D1,vaD1,coD1,D2,vaD2,NV,coNV,S1,S2,SN,coSN,coS1,coS2,PI1,PI2,coPI,DR1,DR2,H1,H2,ST,uf,couf,uf1,uf2,couf2,ind,dt
+CompFormSFMs=CN,CNs,CNp,Cp,CpP,P1,P1s,P1p,P2,P2s,P2p,PN,vaPN,PN1,PN2,PNs,PNp,I1,vaI1,phI1,I1s,I1p,I2,va12,I2s,I2p,IN,INs,INp,IN1,vaIN1,IN2,vaIN2,J1,JN,vaJN,vaJN1,J2,vaJN2,D1,vaD1,D2,vaD2,NV,S1,S2,SN,PI1,PI2,DR1,DR2,H1,H2,ST,uf,uf1,uf2
 
 =cut
 use 5.020;
@@ -32,6 +33,21 @@ use warnings;
 use English;
 use Data::Dumper qw(Dumper);
 
+sub buildlxkey {
+# simple function that returns the contents of the record marker field
+# assumes the homograph marker occurs only under the main record marker
+# i.e., doesn't handle homographs on subentries
+# $recmark and $hmmark do not have leading backslash
+	my ($line, $recmark, $hmmark) =@_;
+	my $lxkey = "";
+	if ($line =~ /\\$recmark ([^#]*)#.*/) {
+		$lxkey = $1;
+		if ($line =~ /\\$hmmark ([^#]*)#/) {
+			$lxkey .= $1;
+			}
+		}
+	return $lxkey;
+	}
 
 use File::Basename;
 my $scriptname = fileparse($0, qr/\.[^.]*/); # script name without the .pl
@@ -63,8 +79,8 @@ $CompFormSFMs  =~ s/\,/\|/g;  # use bars for or'ing
 my $srchSFMs = qr/$CompFormSFMs/;
 say STDERR "Search CompFormSFMs:$CompFormSFMs" if $debug;
 #=cut
-my $dt = (substr localtime(), 8,2) . "/" . (substr localtime(), 4,3) . "/" . (substr localtime(), 20,4);
-$dt =~ s/ //g;
+my $dt = (substr localtime(), 8,2) . "/" . (substr localtime(), 4,3) . "/" . (substr localtime(), 20,4); # " 2/Oct/2019"
+$dt =~ s/ //g; # no leading space on day 1-9 of month
 say STDERR "date:$dt" if $debug;
 
 # generate array of the input file with one SFM record per line (opl)
@@ -89,25 +105,23 @@ push @opledfile_in, $line;
 my %oplhash; # hash of opl'd file keyed by \lx(\hm)
 for my $oplline (@opledfile_in) {
 # build hash
-	if ($oplline =~ /\\$recmark ([^#]*)#/) {
-		my $lxkey = $1;
-		$oplhash{$lxkey} = "" if ! exists $oplhash{$lxkey};
-		
-		if ($oplline =~ /\\$hmmark ([^#]*)#/) {
-			$lxkey .= $1;
-			}
-	$oplhash{$lxkey} = $oplline;
-		}
+	my $lxkey = buildlxkey($oplline, $recmark, $hmmark);
+	$oplhash{$lxkey} = $oplline if $lxkey;
 	}
 for my $oplline (@opledfile_in) {
 	my $extralines ="";
-	while ($oplline =~ /\\$srchSFMs\ ([^#]+)#(?=(.*?\\$srchSFMs\ \g{1}))/g ) {
+	while ($oplline =~ /\\$srchSFMs\ ([^#]+)#(?=(.*?\\$srchSFMs\ \g{1}#))/g ) {
+		# capture duplicated field contents in $1 i.e. \g{1}
 		# trailing # is not captured but is tested so substrings don't match the full field
-		# for explanation of this non-obvious regex: 
-		# See Stack Overflow question 58069662
+		# for explanation of this non-obvious regex See:
+		# Stack Overflow question 58069662 -- thanks zdim
+		my $cflxkey = $1;
+		$cflxkey =~ /^(.*?)([1-9])?$/; # find any homograph number
 		my $cflx = $1;
-		if (! exists $oplhash{$cflx}) {
-			my $newmainref ="\\lx $cflx#\\mn $lxkey#\\cm created by MakeCompForm#\\ind $dt#\\dt $dt##";
+		my $cfhm = $2;
+		my $lxkey = buildlxkey($oplline, $recmark, $hmmark);
+		if (! exists $oplhash{$cflxkey}) {
+			my $newmainref ="\\lx $cflx#" . (($cfhm) ? "\\hm $cfhm#" : "" ) . "\\mn $lxkey#\\cm created by MakeCompForm#\\ind $dt#\\dt $dt##";
 			$oplhash{$cflx} = $newmainref;
 			$extralines .= $newmainref;
 			}
@@ -115,10 +129,9 @@ for my $oplline (@opledfile_in) {
 
 say STDERR "oplline:", Dumper($oplline) if $debug;
 #de_opl this line
-	for ($oplline, $extraline) {
+	for ($oplline, $extralines) {
 		s/#/\n/g;
 		s/\_\_hash\_\_/#/g;
 		print;
 		}
 	}
-
