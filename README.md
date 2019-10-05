@@ -6,3 +6,4 @@ Various perl Scripts to handle the Daasanach Toolbox SFM file
  * *InflectionFormReport.pl* - print lex fields with a certain variant?
  * *MakeCompForm.pl* - create complex forms that are referred to but don't have a record of their own.
  * *MissingRf.pl* - create cross references that are referred to but don't have a record of their own.
+ * *GetMnPs.pl* - If a record has no \ps field get one from the record pointed to by the \mn field
