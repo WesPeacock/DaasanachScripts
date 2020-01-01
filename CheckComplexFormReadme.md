@@ -18,11 +18,11 @@ The *gentag* parameter is the SFM marker (without \\) followed by the tag that w
 
 Make a corresponding entry in the ini file for the *hackFWdata* script.
 
-> \[checkcompform\]
-> comparefilename=VarofUnspecVerb.db
+> \[checkcompform\]  
+> comparefilename=VarofUnspecVerb.db  
 > gentag=genmark AutoUnspecVerb
 
 The corresponding entry in the *PromoteSubentries.ini* file might be like:
 
-> modeltag51=zzz\_DefaultVerbCompform
-> modifytag51=AutoUnspecVerb
+> modeltag51=zzz\_DefaultVerbCompform  
+> modifytag51=AutoUnspecVerb  
