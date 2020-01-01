@@ -111,7 +111,7 @@ for my $oplline (@opledfile_in) {
 	while ($oplline =~ /\\$srchSFMs\ ([^#]+)#/g ) {
 		my $rflxkey = $1;
 		my $lxkey = buildlxkey($oplline, $recmark, $hmmark);
-		if ($rflxkey =~ /[?:;\/]/) {
+		if ($rflxkey =~ /[\?\:\;\/\.\~]/) {
 			say STDERR "found bad character -- $& in \\$recmark $lxkey";
 			say STDERR "\\$LvSFMs $rflxkey";
 			}
