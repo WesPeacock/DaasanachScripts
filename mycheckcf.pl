@@ -111,7 +111,7 @@ my %oplhash; # hash of opl'd file keyed by \lx(\hm)
 my %hmentrieshash; # hash of entries with homographs keyed on \lx field contains flag text only
 my $maxhm =""; # largest homograph number must be numeric string
 for my $oplline (@opledfile_in) {
-# build hashes
+# build hashes, check homograph number and set maximum homograph number
 	my $lxkey = buildlxkey($oplline, $recmark, $hmmark);
 	$oplhash{$lxkey} = $oplline if $lxkey;
 	if ($oplline =~ /\\$recmark ([^#]*)#.*?\\$hmmark ([^#]*)#/) {
