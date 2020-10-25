@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-my $USAGE = "Usage: $0 [--inifile inifile.ini] [--section section] [--recmark lx] [--hmmark hm]  [--cfmark cf] [--debug] [file.sfm]";
+my $USAGE = "Usage: $0 [--inifile inifile.ini] [--section section] [--recmark lx] [--hmmark hm]  [--cfmark cf] [--snmark sn] [--debug] [file.sfm]";
 =pod
 
 For Example
@@ -58,6 +58,7 @@ GetOptions (
 	'recmark:s' => \(my $recmark = "lx"), # record marker, default lx
 	'hmmark:s' => \(my $hmmark = "hm"), # homograh number marker, default hm
 	'cfmark:s' => \(my $cfmark = "cf"), # cross reference marker, default cf
+	'snmark:s' => \(my $snmark = "sn"), # sense number marker, default sn
 	'debug'       => \my $debug,
 	) or die $USAGE;
 
@@ -109,6 +110,7 @@ push @opledfile_in, $line;
 
 my %oplhash; # hash of opl'd file keyed by \lx(\hm)
 my %hmentrieshash; # hash of entries with homographs keyed on \lx field contains flag text only
+my %snentrieshash; # hash of entries with sense markers keyed by "\lx(\hm) \sn"
 my $maxhm =""; # largest homograph number must be numeric string
 for my $oplline (@opledfile_in) {
 # build hashes, check homograph number and set maximum homograph number
@@ -117,18 +119,27 @@ for my $oplline (@opledfile_in) {
 	if ($oplline =~ /\\$recmark ([^#]*)#.*?\\$hmmark ([^#]*)#/) {
 		my $lxtext = $1;
 		my $hmtxt = $2;
-		$hmentrieshash{$lxtext} = '***RECORD HAS HOMOGRAPHS***';
+		$hmentrieshash{$lxtext} = '***HAS HOMOGRAPH***';
 		$hmtxt =~ /^[0-9]/ || die "non-numeric homograph $hmtxt in entry $oplline";
 		$maxhm = $hmtxt if $maxhm lt $hmtxt;
 		}
+	while ($oplline =~ /\\$snmark ([^#]+)#/g) {
+		$snentrieshash{"$lxkey $1"} = "has sense $1";
+		}
 	}
 
-=pod
+#=pod
 say STDERR "maxhm:$maxhm" if $debug;
+say STDERR "hmentrieshash" if $debug;
 say STDERR Dumper(\%hmentrieshash) if $debug;
+say STDERR "";
+say STDERR "snentrieshash" if $debug;
+say STDERR Dumper(\%snentrieshash) if $debug;
+say STDERR "";
+say STDERR "oplhash" if $debug;
 say STDERR Dumper(\%oplhash) if $debug;
-die "debugstmt" if $debug;
-=cut
+#die "debugstmt" if $debug;
+#=cut
 for my $oplline (@opledfile_in) {
 	my $lxkey = buildlxkey($oplline, $recmark, $hmmark);
 say STDERR "lxkey:$lxkey" if $debug;
@@ -136,6 +147,7 @@ say STDERR "lxkey:$lxkey" if $debug;
 		my $cftext = $1;
 say STDERR "cftext:$cftext" if $debug;
 		next if exists $oplhash{$cftext};
+		next if exists $snentrieshash{$cftext};
 		if (! exists $hmentrieshash{$cftext}) {
 			say LOGFILE "Doesn't exist \"\\$cfmark $cftext\" found under $lxkey";
 			}
