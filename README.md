@@ -9,4 +9,5 @@ Various perl Scripts to handle the Daasanach Toolbox SFM file
  * *GetMnPs.pl* - If a record has no \ps field get one from the record pointed to by the \mn field
  * *mycheck.pl* - check the existence of the target of a \cf entry (has useful key building code)
  * *ge-gs-count.pl* - list counts of definition/glosses in 2 languages, e.g. English and Swahili
- *  *AddStructMetaSFM.pl* - Adds an SFM with a list of the other SFMs in the record
+ * *AddStructMetaSFM.pl* - Adds an SFM with a list of the other SFMs in the record
+ * *recmatch.{pl,ini}* Compare SFM databases with different analysis languages
