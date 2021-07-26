@@ -1,5 +1,5 @@
-# Daasanach (and some other) Scripts
-Various perl Scripts to handle the Daasanach Toolbox SFM file
+# SFM perl Scripts
+Various perl Scripts to handle text db lexical files, mostly SFM
 
  * *tableize.pl* - convert some SFMs to table markers
  * *mv2end.pl* - move some SFM fields to the end of the record
