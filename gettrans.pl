@@ -76,17 +76,23 @@ my $KeyFilefilename = $config->{"$inisection"}->{KeyFile};
 open(KEYFILE, "<$KeyFilefilename");
 
 
-$config->{"$inisection"}->{MatchMarker} =~ s/ //g; # no spaces in the list
-$config->{"$inisection"}->{MatchMarker} =~ s/,+/,/g; # no empty markers
-$config->{"$inisection"}->{MatchMarker} =~ s/,$//; # no empty markers (cont.)
-$config->{"$inisection"}->{MatchMarker} =~ s/,/\|/g; # alternatives  are '|' in Regexes
-my $MatchMarker =$config->{"$inisection"}->{MatchMarker};
+$config->{"$inisection"}->{KeyMatchMarker} =~ s/ //g; # no spaces in the list
+$config->{"$inisection"}->{KeyMatchMarker} =~ s/,+/,/g; # no empty markers
+$config->{"$inisection"}->{KeyMatchMarker} =~ s/,$//; # no empty markers (cont.)
+$config->{"$inisection"}->{KeyMatchMarker} =~ s/,/\|/g; # alternatives  are '|' in Regexes
+my $KeyMatchMarker =$config->{"$inisection"}->{KeyMatchMarker};
 
-$config->{"$inisection"}->{TransMarker} =~ s/ //g; # no spaces in the end marker list
-$config->{"$inisection"}->{TransMarker} =~ s/,+/,/g; # no empty markers
-$config->{"$inisection"}->{TransMarker} =~ s/,$//; # no empty markers (cont.)
-$config->{"$inisection"}->{TransMarker} =~ s/,/\|/g; # alternatives  are '|' in Regexes
-my $TransMarker =$config->{"$inisection"}->{TransMarker};
+$config->{"$inisection"}->{KeyTransMarker} =~ s/ //g; # no spaces in the end marker list
+$config->{"$inisection"}->{KeyTransMarker} =~ s/,+/,/g; # no empty markers
+$config->{"$inisection"}->{KeyTransMarker} =~ s/,$//; # no empty markers (cont.)
+$config->{"$inisection"}->{KeyTransMarker} =~ s/,/\|/g; # alternatives  are '|' in Regexes
+my $KeyTransMarker =$config->{"$inisection"}->{KeyTransMarker};
+
+$config->{"$inisection"}->{InputMatchMarker} =~ s/ //g; # no spaces in the list
+$config->{"$inisection"}->{InputMatchMarker} =~ s/,+/,/g; # no empty markers
+$config->{"$inisection"}->{InputMatchMarker} =~ s/,$//; # no empty markers (cont.)
+$config->{"$inisection"}->{InputMatchMarker} =~ s/,/\|/g; # alternatives  are '|' in Regexes
+my $InputMatchMarker =$config->{"$inisection"}->{InputMatchMarker};
 
 $config->{"$inisection"}->{OutputMarker} =~ s/ //g; # no spaces in the end marker list
 $config->{"$inisection"}->{OutputMarker} =~ s/,+/,/g; # no empty markers
@@ -100,8 +106,9 @@ say STDERR "inisection:$inisection" if $debug;
 say STDERR "inifile:$inifilename" if $debug;
 say STDERR "ErrorLogfilename:$ErrorLogfilename" if $debug;
 say STDERR "KeyFilefilename:$KeyFilefilename" if $debug;
-say STDERR "Match Marker:$MatchMarker" if $debug;
-say STDERR "Trans Marker:$TransMarker" if $debug;
+say STDERR "Key Match Marker:$KeyMatchMarker" if $debug;
+say STDERR "Key Trans Marker:$KeyTransMarker" if $debug;
+say STDERR "Input Trans Marker:$InputMatchMarker" if $debug;
 say STDERR "Output Marker:$OutputMarker" if $debug;
 if ($debug) { say STDERR "config:", Dumper($config) }; 
 
@@ -126,24 +133,29 @@ while (<KEYFILE>) {
 	else { $line .= $_ }
 	}
 push @opledkeyfile, $line;
-my %keyfilehash; # hash of MatchMarker keys
+my %keyfilehash; # hash of KeyMatchMarker keys
 for my $keyline (@opledkeyfile) {
 # build hash
-	next if !($keyline =~  /\\($MatchMarker) [^\@]+\@\\($TransMarker) [^\@]+\@/);
-	while ($keyline =~ /\\($MatchMarker) [^\@]+\@\\($TransMarker) [^\@]+\@/g) {
+	next if !($keyline =~  /\\($KeyMatchMarker) [^\@]+\@\\($KeyTransMarker) [^\@]+\@/);
+	while ($keyline =~ /\\($KeyMatchMarker) [^\@]+\@\\($KeyTransMarker) [^\@]+\@/g) {
 		my $MatchPair = $MATCH;
-		$keyline =~ m/\\($MatchMarker) [^\@]+/;
+		$keyline =~ m/\\($KeyMatchMarker) [^\@]+\@/;
 		my $MatchField = $MATCH;
-		$keyline =~ m/\\($TransMarker) [^\@]+/;
+		$keyline =~ m/\\($KeyTransMarker) [^\@]+\@/;
 		my $TransField = $MATCH;
-		$TransField =~ s/\\($TransMarker) /\\$OutputMarker /;
+		$TransField =~ s/\\($KeyTransMarker) /\\$OutputMarker /;
+		$TransField =~ s/\@$//;
 		next if ! $MatchField;
+		$MatchField =~ s/\@$//;
+		
 		if (exists $keyfilehash{$MatchField}) {
 			my $already = $keyfilehash{$MatchField};
-			say LOGFILE qq[Sentence:"$MatchField"];
-			say LOGFILE qq[Already has Translation:"$already"];
-			say LOGFILE qq[Will Ignore Translation:"$TransField"];
-			say LOGFILE "";
+			if ($already ne  $TransField) {
+				say LOGFILE qq[Sentence:"$MatchField"];
+				say LOGFILE qq[Already has Translation:"$already"];
+				say LOGFILE qq[Will Ignore Translation:"$TransField"];
+				say LOGFILE "";
+				}
 			}
 		else {
 			$keyfilehash{$MatchField} = $TransField;
@@ -159,7 +171,14 @@ say STDERR "keyfilehash:", Dumper(\%keyfilehash) if $debug;
 
 while (<>) {
 	s/\R//g; # chomp that doesn't care about Linux & Windows
+	#perhaps s/\R*$//; if we want to leave in \r characters in the middle of a line
+	s/\ +$//;
 	say $_;
-	next if ! exists $keyfilehash{$_};
-	say  $keyfilehash{$_};
+	if (m/\\$InputMatchMarker (.*)/) {
+		my $MatchText = $1;
+		my $KeyField = "\\$KeyMatchMarker $MatchText";
+		if (exists $keyfilehash{$KeyField}) {
+			say $keyfilehash{$KeyField};
+			}
+		}
 	}
