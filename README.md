@@ -13,3 +13,4 @@ Various perl Scripts to handle text db lexical files, mostly SFM
  * *recmatch.{pl,ini}* Compare SFM databases with different analysis languages
  * *getsenttrans.{pl,ini}* Apply example sentences from one database to another (Nahuatl-Spanish/English)
  * Brief documentation about associative arrays (e.g. perl hashes)
+ * add sense number change on part of speech marker
