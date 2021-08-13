@@ -11,3 +11,5 @@ Various perl Scripts to handle text db lexical files, mostly SFM
  * *ge-gs-count.pl* - list counts of definition/glosses in 2 languages, e.g. English and Swahili
  * *AddStructMetaSFM.pl* - Adds an SFM with a list of the other SFMs in the record
  * *recmatch.{pl,ini}* Compare SFM databases with different analysis languages
+ * *getsenttrans.{pl,ini}* Apply example sentences from one database to another (Nahuatl-Spanish/English)
+ * Brief documentation about associative arrays (e.g. perl hashes)
