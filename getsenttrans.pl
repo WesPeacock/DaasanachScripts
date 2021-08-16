@@ -8,19 +8,12 @@ This script reads an ini file for:
 	* a log file name
 	* a key file name
 
-It opl's the SFM file.
-It grinds over the opl'ed file
-	building a hash of lines keyed by entry/homograph#
-    It chokes if it finds an non-numeric homograph number
-	It finds the largest homograph#
-	If an entry has a homograph it adds that key to a flag hash
+It opl's the key file.
+It grinds over the opl'ed key file
+	building a hash of lines keyed by the matching field.
 
-It grinds again over the opl'ed file checking cross-reference fields
-    if the cross-reference hits on the main hash by entry/homograph# --good
-		else if the cross-reference hits on the flag hash
-			it matches multiple homographs
-			log all the homographs for the matching cross-reference
-		else log the cross-reference as a missing entry
+It grinds again over the opl'ed file checking the input match field
+    if the cross-reference hits on the main hash --good
 =cut
 use 5.020;
 use utf8;
