@@ -46,7 +46,7 @@ $USAGE =~ s/inifile\.ini/$scriptname.ini/;
 use Getopt::Long;
 GetOptions (
 	'inifile:s'   => \(my $inifilename = "$scriptname.ini"), # ini filename
-	'section:s'   => \(my $inisection = "gettrans"), # section of ini file to use
+	'section:s'   => \(my $inisection = "getsenttrans"), # section of ini file to use
 # additional options go here.
 # 'sampleoption:s' => \(my $sampleoption = "optiondefault"),
 	'recmark:s' => \(my $recmark = "w"), # record marker, default w
