@@ -30,7 +30,6 @@ my $pscount = 0;
 while (/(\\ps .*?)(?=(\\ps |$))/g) {
 	my $pstext = $1;
 	$pscount += 1;
-	$pstext =~ s/\\sn /\\sn $pscount\./g;
-	$outline = $outline . $pstext;
+	$pstext =~ s/\\sn /\\sn $pscount\./g;$outline = $outline . "\\sn $pscount#" . $pstext;
 	}
 $_=$outline;
