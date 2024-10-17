@@ -16,3 +16,5 @@ Various perl Scripts to handle text db lexical files, mostly SFM
  - *Perl Array and Hash examples.md* Brief documentation about associative arrays (e.g. perl hashes)
  - *numberps.pl* add sense number change on part of speech marker
  - *indexsfm.pl* add line numbers to the end of lines with a certain sfm marker
+ - *MBsfm2MDF.pl* Change Old Mexico Branchs SFMs to MDF (sort of)
+ - *Perl Array and Hash examples.md* perl Arrays and Hashes 101
