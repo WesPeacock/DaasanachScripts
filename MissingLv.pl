@@ -120,7 +120,9 @@ for my $oplline (@opledfile_in) {
 			my $rflx = $1;
 			my $rfhm = "";
 			$rfhm = $2 if $2;
+			say STDERR qq{Search rflxkey "$rflxkey" : rflx "$rflx" rfhm "$rfhm"} if $debug;
 			if (! exists $oplhash{$rflxkey}) {
+				say STDERR qq{Hash miss: rflxkey "$rflxkey"} if $debug;
 				$oplline =~ /\\ps\ ([^#]+)#/; #get the part of speech for propagation
 				my $rfPS =$1;
 				$oplline =~ /\\lf\ ([^#]+)#/; #get the lexical function to propagate the inverse
@@ -129,6 +131,7 @@ for my $oplline (@opledfile_in) {
 				$oplhash{$rflx} = $newmainref;
 				$extralines .= $newmainref;
 				}
+			else {say STDERR qq{Hash hit: rflxkey "$rflxkey"} if $debug;}
 			}
 		}
 say STDERR "oplline:", Dumper($oplline) if $debug;
