@@ -118,7 +118,8 @@ for my $oplline (@opledfile_in) {
 		else {
 			$rflxkey =~ /^(.*?)([1-9])?$/; # find any homograph number
 			my $rflx = $1;
-			my $rfhm = $2;
+			my $rfhm = "";
+			$rfhm = $2 if $2;
 			if (! exists $oplhash{$rflxkey}) {
 				$oplline =~ /\\ps\ ([^#]+)#/; #get the part of speech for propagation
 				my $rfPS =$1;
