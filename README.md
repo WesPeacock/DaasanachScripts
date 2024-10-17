@@ -5,6 +5,7 @@ Various perl Scripts to handle text db lexical files, mostly SFM
  * *mv2end.pl* - move some SFM fields to the end of the record
  * *InflectionFormReport.pl* - print lex fields with a certain variant?
  * *MakeCompForm.pl* - create complex forms that are referred to but don't have a record of their own.
+ * *MissingLv.pl* - create lexical references that are referred to but don't have a record of their own.
  * *MissingRf.pl* - create cross references that are referred to but don't have a record of their own.
  * *GetMnPs.pl* - If a record has no \ps field get one from the record pointed to by the \mn field
  * *mycheck.pl* - check the existence of the target of a \cf entry (has useful key building code)
