@@ -116,11 +116,16 @@ for my $oplline (@opledfile_in) {
 			say STDERR "\\$LvSFMs $rflxkey";
 			}
 		else {
+			my $rfsn ="";
+			if ($rflxkey =~ /^(.*?)\ ([1-9]+)$/) { 
+				$rfsn =$2;
+				$rflxkey=$1;
+				}
 			$rflxkey =~ /^(.*?)([1-9])?$/; # find any homograph number
 			my $rflx = $1;
 			my $rfhm = "";
 			$rfhm = $2 if $2;
-			say STDERR qq{Search rflxkey "$rflxkey" : rflx "$rflx" rfhm "$rfhm"} if $debug;
+			say STDERR qq{Search rflxkey "$rflxkey" : rflx "$rflx" rfhm "$rfhm" rfsn "$rfsn"} if $debug;
 			if (! exists $oplhash{$rflxkey}) {
 				say STDERR qq{Hash miss: rflxkey "$rflxkey"} if $debug;
 				$oplline =~ /\\ps\ ([^#]+)#/; #get the part of speech for propagation
