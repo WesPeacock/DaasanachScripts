@@ -2,6 +2,7 @@
 Various perl Scripts to handle text db lexical files, mostly SFM
 
  - *AddStructMetaSFM.pl* - Adds an SFM with a list of the other SFMs in the record
+ - *disambiguate_nt.pl* change \nt to \nt_previoussfm 
  - *ge-gs-count.pl* - list counts of definition/glosses in 2 languages, e.g. English and Swahili
  - *GetMnPs.pl* - If a record has no \ps field get one from the record pointed to by the \mn field
  - *getsenttrans.{pl,ini}* Apply example sentences from one database to another (Nahuatl-Spanish/English)
